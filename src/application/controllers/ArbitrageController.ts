@@ -66,7 +66,7 @@ export class ArbitrageController extends Controller{
             select * 
             from arbitrage.get_data_graf(${req.query.pair}, ${req.query.min}, ${req.query.max})
         `;
-        console.log(query);
+        //console.log(query);
         const dbResp = await this.pgService.execute(query);
         return dbResp.rows.map(r => {
             return {
@@ -157,21 +157,17 @@ export class ArbitrageController extends Controller{
 
         const exchangesQ = 'select * from arbitrage.a_exchanges where enabled = true';
 
-        console.log('get exchanges', new Date())
         const activeExch = await this.pgService.execute(exchangesQ);
-        console.log('got exchanges', new Date())
 
         if (activeExch.rows.length) {
             for (let exch of activeExch.rows) {
                 let query = `select * from arbitrage.get_stepped_data_since(${req.query.pair}, ${exch.ex_id}, '${startTime}', '${now.format('YYYY-MM-DD HH:mm')}', '${timeStep}')`;
-                console.log(query);
+                // console.log(query);
                 activeExchProms.push(this.pgService.execute(query));
                 activeExchNames.push(exch.name);
             }
         }
-        console.log('get data', new Date())
         const dbResp = await Promise.all(activeExchProms);
-        console.log('got data', new Date())
 
 		let priceChartData: {
 			name: string;
