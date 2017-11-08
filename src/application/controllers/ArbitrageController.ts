@@ -89,69 +89,6 @@ export class ArbitrageController extends Controller{
         });
     }
 
-    // @Handler({
-    //     method: HttpMethod.GET,
-    //     route: '/get-chart',
-    //     validations: [
-    //         checkQuery(['pair']).isInt(),
-    //         checkQuery(['period']).isInt()
-    //     ]
-    // })
-    // private async getChart(req: Request) {
-		
-	// 	let startTime: number,
-	// 		timeDiff: number,
-	// 		nth: number,
-	// 		now = moment().add(5, 'h');
-
-	// 	switch (+req.query.period) {
-	// 		case 1: // 6h
-	// 			startTime = now.clone().subtract(15, 'm').unix();
-	// 			break;
-	// 		case 2: // 24 h
-	// 			startTime = now.clone().subtract(30, 'm').unix();
-	// 			break;
-	// 		case 3: // 2 d
-	// 			startTime = now.clone().subtract(2, 'h').unix();
-	// 			break;
-	// 		case 4: // 4 d
-	// 			startTime = now.clone().subtract(4, 'h').unix();
-	// 			break;
-	// 		case 5: // 1 w
-	// 			startTime = now.clone().subtract(1, 'd').unix();
-	// 			break;
-	// 		default:
-	// 			startTime = now.clone().subtract(15, 'm').unix();
-	// 			break;
-	// 	}
-
-	// 	timeDiff = (now.unix() - startTime) / 60;
-
-	// 	nth = Math.round(timeDiff / 1500)
-
-	// 	if (nth < 1) {
-	// 		nth = 1;
-	// 	}
-
-    //     const query = `
-    //         select * 
-    //         from arbitrage.get_chart_data_by_exchanges(${req.query.pair}, ${nth}, ${startTime})
-	// 	`;
-		
-	// 	console.log(query);
-    //     const dbResp = await this.pgService.execute(query);
-    //     return dbResp.rows.map(e => {
-    //         for (let key in e) {
-    //             if (key === 'time_s') {
-    //                 e['time'] = moment(e[key] * 1000).subtract(5,'h').unix()*1000; // set UTC time
-    //             } else {
-    //                 e[key] = e[key] ? +e[key] : null;
-    //             }
-    //         }
-    //         return e;
-    //     });
-    // }
-
 
     @Handler({
         method: HttpMethod.GET,
@@ -165,66 +102,76 @@ export class ArbitrageController extends Controller{
     private async getChart(req: Request) {
         let activeExchProms: Promise<any>[] = [],
 			activeExchNames: string[] = [],
-			startTime: number,
-			timeStep: number,
-			now = moment().add(5, 'h');
+            startTime: string,
+            diffNum: number = 6,
+            diffPart: moment.DurationInputArg2 = 'h',
+			timeStep: string = '15 munute',
+			now = moment();
 		
 			switch (+req.query.period) {
-				case 1: // 6h
-					startTime = now.clone().subtract(6, 'h').unix();
+                case 1: // 6h
+                    diffNum = 6;
+                    diffPart = 'h';
 					break;
-				case 2: // 24h
-					startTime = now.clone().subtract(24, 'h').unix();
+                case 2: // 24h
+                    diffNum = 24;
+                    diffPart = 'h';
 					break;
-				case 3: // 2 d
-					startTime = now.clone().subtract(2, 'd').unix();
+                case 3: // 2 d
+                    diffNum = 2;
+                    diffPart = 'd';
 					break;
-				case 4: // 4 d
-					startTime = now.clone().subtract(4, 'd').unix();
+                case 4: // 4 d
+                    diffNum = 4;
+                    diffPart = 'd';
 					break;
-				case 5: // 1 w
-					startTime = now.clone().subtract(1, 'w').unix();
+                case 5: // 1 w
+                    diffNum = 1;
+                    diffPart = 'w';
 					break;
 				default:
-					startTime = now.clone().subtract(15, 'm').unix();
 					break;
-			}
+            }
+            
+            startTime = now.clone().startOf('minute').subtract(diffNum, diffPart).format('YYYY-MM-DD HH:mm');
 
 			switch (+req.query.step) {
 				case 1: // 15m
-					timeStep = 15;
+					timeStep = '15 minute';
 					break;
 				case 2: // 30 m
-					timeStep = 30;
+					timeStep = '30 minute';
 					break;
 				case 3: // 2 h
-					timeStep = 120;
+					timeStep = '2 hour';
 					break;
 				case 4: // 4 h
-					timeStep = 240;
+					timeStep = '4 hour';
 					break;
 				case 5: // 1 d
-					timeStep = 1440;
+					timeStep = '1 day';
 					break;
 				default:
-					timeStep = 15;
 					break;
 			}
 
         const exchangesQ = 'select * from arbitrage.a_exchanges where enabled = true';
 
+        console.log('get exchanges', new Date())
         const activeExch = await this.pgService.execute(exchangesQ);
+        console.log('got exchanges', new Date())
 
         if (activeExch.rows.length) {
             for (let exch of activeExch.rows) {
-                let query = `select * from arbitrage.get_all_stepped_data_by_indicators(${req.query.pair}, ${exch.ex_id}, ${startTime}, ${timeStep})`;
+                let query = `select * from arbitrage.get_stepped_data_since(${req.query.pair}, ${exch.ex_id}, '${startTime}', '${now.format('YYYY-MM-DD HH:mm')}', '${timeStep}')`;
                 console.log(query);
                 activeExchProms.push(this.pgService.execute(query));
                 activeExchNames.push(exch.name);
             }
         }
-
+        console.log('get data', new Date())
         const dbResp = await Promise.all(activeExchProms);
+        console.log('got data', new Date())
 
 		let priceChartData: {
 			name: string;
