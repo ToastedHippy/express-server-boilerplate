@@ -64,7 +64,7 @@ export class ArbitrageController extends Controller{
     private async getTable(req: Request) {
         const query = `
             select * 
-            from arbitrage.get_data_graf_copy('{${req.query.pairs ? req.query.pairs.split(',') : ''}}', ${req.query.min}, ${req.query.max})
+            from arbitrage.get_data_graf('{${req.query.pairs ? req.query.pairs.split(',') : ''}}', ${req.query.min}, ${req.query.max})
         `;
         //console.log(query);
         const dbResp = await this.pgService.execute(query);
@@ -155,7 +155,7 @@ export class ArbitrageController extends Controller{
 					break;
 			}
 
-        const exchangesQ = 'select * from arbitrage.a_exchanges where enabled = true';
+        const exchangesQ = 'select * from arbitrage.a_exchanges where enabled = true and ex_id in (104, 101)';
 
         const activeExch = await this.pgService.execute(exchangesQ);
 
