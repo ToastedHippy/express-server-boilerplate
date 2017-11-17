@@ -56,15 +56,12 @@ export class ArbitrageController extends Controller{
 
     @Handler({
         method: HttpMethod.GET,
-        route: '/get-table',
-        validations: [
-            checkQuery(['min', 'max']).isInt()
-        ]
+        route: '/get-table'
     })
     private async getTable(req: Request) {
         const query = `
             select * 
-            from arbitrage.get_data_graf('{${req.query.pairs ? req.query.pairs.split(',') : ''}}', ${req.query.min}, ${req.query.max})
+            from arbitrage.get_data_graf('{${req.query.pairs ? req.query.pairs.split(',') : ''}}', 0, 99999999)
         `;
         //console.log(query);
         const dbResp = await this.pgService.execute(query);
