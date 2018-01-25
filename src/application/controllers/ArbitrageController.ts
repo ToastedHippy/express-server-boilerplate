@@ -39,7 +39,7 @@ export class ArbitrageController extends Controller{
     }
 
     @Handler({
-        method: HttpMethod.GET,
+        method: HttpMethod.POST,
         route: '/get-pairs'
     })
     private async getPairs(req: Request) {
@@ -55,15 +55,14 @@ export class ArbitrageController extends Controller{
     }
 
     @Handler({
-        method: HttpMethod.GET,
-        route: '/get-table'
+        method: HttpMethod.POST,
+        route: '/get-arbitrage'
     })
     private async getTable(req: Request) {
         const query = `
             select * 
-            from arbitrage.get_data_graf('{${req.query.pairs ? req.query.pairs.split(',') : ''}}', 0, 99999999)
+            from arbitrage.get_data_graf('{${req.body.pairs ? req.body.pairs : ''}}', 0, 99999999)
         `;
-        //console.log(query);
         const dbResp = await this.pgService.execute(query);
         return dbResp.rows.map(r => {
             return {
@@ -82,6 +81,38 @@ export class ArbitrageController extends Controller{
                 last: r.last ? +r.last : null,
                 base_volume_b: r.base_volume_b ? +r.base_volume_b : null,
 				profit: r.profit ? +r.profit : null
+            }
+        });
+    }
+
+    @Handler({
+        method: HttpMethod.POST,
+        route: '/get-exchanges-data'
+    })
+    private async gedExchangesData(req: Request) {
+        const query = `
+            select * 
+            from arbitrage.get_data_exchanges('{${req.body.pairs ? req.body.pairs : ''}}', 0, 99999999)
+        `;
+        const dbResp = await this.pgService.execute(query);
+        return dbResp.rows.map(r => {
+            return {
+                time: r.time,
+                pair_id: r.pair_id,
+                pairs_name: r.pairs_name,
+                exchanges_a: r.exchanges_a,
+                exchanges_a_name: r.exchanges_a_name,
+                exchanges_b: r.exchanges_b,
+                exchanges_b_name: r.exchanges_b_name,
+                lowest_ask: r.lowest_ask ? +r.lowest_ask : null,
+				base_volume_a: r.base_volume_a ? +r.base_volume_a : null,
+				fee_a: r.fee_a ? +r.fee_a : null,
+				ex_fee_a: r.ex_fee_a ? +r.ex_fee_a : null,
+				fee_b: r.fee_b ? +r.fee_b : null,
+				ex_fee_b: r.ex_fee_b ? +r.ex_fee_b : null,
+                last: r.last ? +r.last : null,
+                base_volume_b: r.base_volume_b ? +r.base_volume_b : null,
+				ask_bid: r.ask_bid ? +r.ask_bid : null
             }
         });
     }
