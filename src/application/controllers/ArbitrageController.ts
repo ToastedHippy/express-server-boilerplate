@@ -2,7 +2,7 @@ import {Request} from "express";
 import {Controller, Handler, HttpMethod} from "../../core/controller/Controller";
 import {PgService} from "../../core/services/PgService";
 import {pgArbitrageConfig} from "../../config/servicesConfig";
-import {query as checkQuery} from "express-validator/check";
+import {query as checkQuery, body as checkBody, param as checkParam} from "express-validator/check";
 import * as moment from "moment";
 
 
@@ -249,5 +249,104 @@ export class ArbitrageController extends Controller{
 			volumeChartDate: volumeChartData
 		}
         
+    }
+
+
+    @Handler({
+        method: HttpMethod.POST,
+        route: '/transactions/insert',
+        validations: [
+            checkBody(['pair_id', 'exchanges_a', 'exchanges_b']).isInt(),
+            checkBody(['volumeXMR', 'minProfit']).isFloat(),
+        ]
+    })
+    private async insertActiveTransaction(req: Request) {
+        const query = `
+        select * 
+        from arbitrage.insert_active(${req.body.pair_id}, ${req.body.exchanges_a}, ${req.body.exchanges_b}, ${req.body.minProfit}, '${req.body.volumeXMR}')`
+        console.log(query);
+        const dbResp = await this.pgService.execute(query);
+        return dbResp.rows && dbResp.rows.length ? dbResp.rows[0].insert_active : null;
+    }
+
+
+    @Handler({
+        method: HttpMethod.POST,
+        route: '/transactions/get'
+    })
+    private async getTransactions(req: Request) {
+        const query = `
+            select * 
+            from arbitrage.active_transactions()
+            order by id
+        `;
+        const dbResp = await this.pgService.execute(query);
+        return dbResp.rows.map(r => {
+            return {
+                id: r.id,
+                exchanges_a_name: r.exchanges_a_name,
+                pair_name: r.pair_name,
+                exchanges_b_name: r.exchanges_b_name,              
+                lowest_ask_a: r.lowest_ask_a ? +r.lowest_ask_a : null,
+                base_volume_a: r.base_volume_a ? +r.base_volume_a : null,
+                bid_a: r.bid_a ? +r.bid_a : null,
+                ex_fee_a: r.ex_fee_a ? +r.ex_fee_a : null,
+                profit_a: r.profit_a ? +r.profit_a : null,
+                bid_b: r.bid_b ? +r.bid_b : null,
+                volume_transaction: r.volume_transaction ? +r.volume_transaction : null,
+                lowest_ask_b: r.lowest_ask_b ? +r.lowest_ask_b : null,
+                ex_fee_b: r.ex_fee_b ? +r.ex_fee_b : null,
+                profit_b: r.profit_b ? +r.profit_b : null,
+                ask_bid: r.ask_bid ? +r.ask_bid : null,
+                comparison_price: r.comparison_price ? +r.comparison_price : null,
+                all_profit: r.all_profit ? +r.all_profit : null
+            }
+        });
+    }
+
+    @Handler({
+        method: HttpMethod.DELETE,
+        route: '/transactions/delete/:id',
+        validations: [checkParam(['id']).isInt()]
+    })
+    private async deleteTransaction(req: Request) {
+        const query = `
+        select *  from arbitrage.delete_transaction (${req.params.id})`;
+        console.log(query);
+        const dbResp = await this.pgService.execute(query);
+        return dbResp.rows && dbResp.rows.length ? dbResp.rows[0].delete_transaction : null;
+    }
+
+    @Handler({
+        method: HttpMethod.POST,
+        route: '/transactions/history'
+    })
+    private async getTransactionsHistory(req: Request) {
+        const query = `
+            select * 
+            from arbitrage.get_history()
+            order by id
+        `;
+        const dbResp = await this.pgService.execute(query);
+        return dbResp.rows.map(r => {
+            return {
+                id: r.id,
+                exchanges_a_name: r.exchanges_a_name,
+                pair_name: r.pair_name,
+                exchanges_b_name: r.exchanges_b_name,              
+                lowest_ask_a: r.lowest_ask_a ? +r.lowest_ask_a : null,
+                base_volume_a: r.base_volume_a ? +r.base_volume_a : null,
+                bid_a: r.bid_a ? +r.bid_a : null,
+                ex_fee_a: r.ex_fee_a ? +r.ex_fee_a : null,
+                profit_a: r.profit_a ? +r.profit_a : null,
+                bid_b: r.bid_b ? +r.bid_b : null,
+                volume_transaction: r.volume_transaction ? +r.volume_transaction : null,
+                lowest_ask_b: r.lowest_ask_b ? +r.lowest_ask_b : null,
+                ex_fee_b: r.ex_fee_b ? +r.ex_fee_b : null,
+                profit_b: r.profit_b ? +r.profit_b : null,
+                ask_bid: r.ask_bid ? +r.ask_bid : null,
+                all_profit: r.all_profit ? +r.all_profit : null
+            }
+        });
     }
 }
