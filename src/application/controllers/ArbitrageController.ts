@@ -1,6 +1,7 @@
 import {Request} from "express";
 import {Controller, Handler, HttpMethod} from "../../core/controller/Controller";
 import {PgService} from "../../core/services/PgService";
+import {arbitrageService} from "../servises/ArbitrageService";
 import {pgArbitrageConfig} from "../../config/servicesConfig";
 import {query as checkQuery, body as checkBody, param as checkParam} from "express-validator/check";
 import * as moment from "moment";
@@ -12,16 +13,16 @@ export class ArbitrageController extends Controller{
 
     constructor(){ 
         super();
-        this.pgService = new PgService(pgArbitrageConfig);        
+        this.pgService = arbitrageService;        
     }
 
 
     @Handler({
-        method: HttpMethod.GET,
+        method: HttpMethod.POST,
         route: '/get-exchanges',
     })    
     private async getExchanges(req: Request){
-        const query = 'select * from arbitrage.exchanges';
+        const query = `select * from arbitrage.get_actual_exchanges();`;
         const dbResp = await this.pgService.execute(query);
         return dbResp.rows;
     }

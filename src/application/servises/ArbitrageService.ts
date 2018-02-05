@@ -7,14 +7,6 @@ class ArbitrageService extends PgService {
         console.log('creating ArbitrageService')
         super(pgArbitrageConfig);
     }
-
-    async getExchanges() {
-        const query = 'select * from arbitrage.exchanges';
-
-        const dbResp = await this.execute(query);
-
-        return dbResp.rows;
-    }
 }
 
 export const arbitrageService = new ArbitrageService();
