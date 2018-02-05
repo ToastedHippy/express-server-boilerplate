@@ -257,14 +257,14 @@ export class ArbitrageController extends Controller{
         method: HttpMethod.POST,
         route: '/transactions/insert',
         validations: [
-            checkBody(['pair_id', 'exchanges_a', 'exchanges_b']).isInt(),
+            checkBody(['userId', 'pair_id', 'exchanges_a', 'exchanges_b']).isInt(),
             checkBody(['volumeXMR', 'minProfit']).isFloat(),
         ]
     })
     private async insertActiveTransaction(req: Request) {
         const query = `
         select * 
-        from arbitrage.insert_active(${req.body.pair_id}, ${req.body.exchanges_a}, ${req.body.exchanges_b}, ${req.body.minProfit}, '${req.body.volumeXMR}')`
+        from arbitrage.insert_active(${req.body.userId}, ${req.body.pair_id}, ${req.body.exchanges_a}, ${req.body.exchanges_b}, ${req.body.minProfit}, '${req.body.volumeXMR}')`
         console.log(query);
         const dbResp = await this.pgService.execute(query);
         return dbResp.rows && dbResp.rows.length ? dbResp.rows[0].insert_active : null;
@@ -273,14 +273,18 @@ export class ArbitrageController extends Controller{
 
     @Handler({
         method: HttpMethod.POST,
-        route: '/transactions/get'
+        route: '/transactions/get',
+        validations: [
+            checkBody(['userId']).isInt(),
+        ]
     })
     private async getTransactions(req: Request) {
         const query = `
             select * 
-            from arbitrage.active_transactions()
+            from arbitrage.active_transactions(${req.body.userId})
             order by id
         `;
+        // console.log(query)
         const dbResp = await this.pgService.execute(query);
         return dbResp.rows.map(r => {
             return {
@@ -306,13 +310,13 @@ export class ArbitrageController extends Controller{
     }
 
     @Handler({
-        method: HttpMethod.DELETE,
-        route: '/transactions/delete/:id',
-        validations: [checkParam(['id']).isInt()]
+        method: HttpMethod.POST,
+        route: '/transactions/delete',
+        validations: [checkBody(['userId', 'id']).isInt()]
     })
     private async deleteTransaction(req: Request) {
         const query = `
-        select *  from arbitrage.delete_transaction (${req.params.id})`;
+        select *  from arbitrage.delete_transaction(${req.body.userId}, ${req.body.id})`;
         console.log(query);
         const dbResp = await this.pgService.execute(query);
         return dbResp.rows && dbResp.rows.length ? dbResp.rows[0].delete_transaction : null;
@@ -320,14 +324,16 @@ export class ArbitrageController extends Controller{
 
     @Handler({
         method: HttpMethod.POST,
-        route: '/transactions/history'
+        route: '/transactions/history',
+        validations: [checkBody(['userId']).isInt()]
     })
     private async getTransactionsHistory(req: Request) {
         const query = `
             select * 
-            from arbitrage.get_history()
+            from arbitrage.get_history(${req.body.userId})
             order by id
         `;
+        console.log(query);
         const dbResp = await this.pgService.execute(query);
         return dbResp.rows.map(r => {
             return {
