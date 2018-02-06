@@ -356,4 +356,17 @@ export class ArbitrageController extends Controller{
             }
         });
     }
+
+    @Handler({
+        method: HttpMethod.POST,
+        route: '/transactions/history/delete',
+        validations: [checkBody(['userId', 'id']).isInt()]
+    })
+    private async deleteTransactionFromHistory(req: Request) {
+        const query = `
+        select *  from arbitrage.delete_personal_history(${req.body.userId}, ${req.body.id})`;
+        console.log(query);
+        const dbResp = await this.pgService.execute(query);
+        return dbResp.rows && dbResp.rows.length ? dbResp.rows[0].delete_transaction : null;
+    }
 }
