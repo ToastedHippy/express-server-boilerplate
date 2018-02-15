@@ -1,24 +1,23 @@
 import {Request} from "express";
-import {Controller, Handler, HttpMethod} from "../../core/controller/Controller";
+import {Controller} from "../../core/controller/ControllerDecorator";
 import {PgService} from "../../core/services/PgService";
 import {arbitrageService} from "../servises/ArbitrageService";
 import {pgArbitrageConfig} from "../../config/servicesConfig";
 import {query as checkQuery, body as checkBody, param as checkParam} from "express-validator/check";
 import * as moment from "moment";
+import { Get, Post } from "../../core/controller/HandlerDecorators";
 
-
-export class ProfileController extends Controller{
+@Controller('/profile')
+export class ProfileController{
 
     pgService: PgService;
 
     constructor(){ 
-        super();
         this.pgService = arbitrageService;        
     }
 
-    @Handler({
-        method: HttpMethod.POST,
-        route: '/get-secrets',
+    @Get({
+        route: '/secrets',
         validations: [
             checkBody(['userId']).isInt(),
         ]
@@ -30,8 +29,7 @@ export class ProfileController extends Controller{
         return dbResp.rows;
     }
 
-    @Handler({
-        method: HttpMethod.POST,
+    @Post({
         route: '/update-secrets',
         validations: [
             checkBody(['id', 'userId', 'exchangeId']).isInt(),
@@ -44,8 +42,7 @@ export class ProfileController extends Controller{
         return dbResp.rows;
     }
 
-    @Handler({
-        method: HttpMethod.POST,
+    @Post({
         route: '/insert-secrets',
         validations: [
             checkBody(['userId', 'exchangeId']).isInt(),
@@ -58,8 +55,7 @@ export class ProfileController extends Controller{
         return dbResp.rows;
     }
 
-    @Handler({
-        method: HttpMethod.POST,
+    @Post({
         route: '/delete-secrets',
         validations: [
             checkBody(['id', 'userId']).isInt(),

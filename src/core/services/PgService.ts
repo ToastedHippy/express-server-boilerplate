@@ -1,5 +1,15 @@
 import {Pool, ConnectionConfig, QueryResult} from "pg";
 
+class PgError {
+    message = 'ошибка в запросе к БД';
+    query: string;
+    details: Error;
+
+    constructor(query?: string, details?: Error) {
+        this.query = query;
+        this.details = details;
+    }
+}
 
 export class PgService {
 
@@ -10,7 +20,7 @@ export class PgService {
     }
 
     async execute(query: string): Promise<QueryResult> {
-        return await this._pool.query(query);
+        return await this._pool.query(query).catch(e => {throw new PgError(query, e)});
     }
 
 }

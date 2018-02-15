@@ -7,7 +7,6 @@ export interface IRouterConfig{
 
 export interface IServerConfig{
     port: number;
-    routerConfig: IRouterConfig[];
 }
 
 

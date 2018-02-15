@@ -1,7 +1,7 @@
 import {Express} from "express"
 import * as http from "http";
 import * as path from "path";
-import {serverConfig} from "../config/serverConfig";
+
 
 import {IServerConfig} from "../config/models";
 import {ExpressApplication} from "./ExpressApplication";
@@ -12,9 +12,9 @@ export class HTTPServer {
     private _config: IServerConfig;
     private _instance: http.Server;
 
-    constructor(){
-        this._config = serverConfig;
-        this._app = new ExpressApplication(this._config).instance;
+    constructor(config: IServerConfig, controllers?: Array<new (...args: any[])=> Object>){
+        this._config = config;
+        this._app = new ExpressApplication(this._config, controllers).instance;
         this._instance = http.createServer(this._app);
     };
 

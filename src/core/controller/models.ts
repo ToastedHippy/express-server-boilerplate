@@ -1,19 +1,29 @@
-import {RequestHandler} from "express";
+import {RequestHandler, Router} from "express";
 import {ValidationChain} from "express-validator/check"
 
 export interface IResponseData {
-    errors?: any,
+    error?: any,
     data?: any;
 }
 
 export interface HandlerOptions {
-    method: HttpMethod;
     route: string;
     validations?: ValidationChain[]
 }
 
+export interface IController {
+    __path: string;
+    __router: Router;
+}
+
 export interface IHandler extends HandlerOptions {
+    method: HttpMethod;
     action: RequestHandler;
+}
+
+export interface HandlerOptions {
+    route: string;
+    validations?: ValidationChain[]
 }
 
 export enum HttpMethod {
@@ -25,4 +35,8 @@ export enum HttpMethod {
     HEAD,
     OPTIONS,
     ALL
+}
+
+export interface Controller {
+    new (...args: any[]): any
 }

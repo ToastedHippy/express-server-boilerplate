@@ -1,24 +1,23 @@
 import {Request} from "express";
-import {Controller, Handler, HttpMethod} from "../../core/controller/Controller";
+import {Controller} from "../../core/controller/ControllerDecorator";
 import {PgService} from "../../core/services/PgService";
 import {arbitrageService} from "../servises/ArbitrageService";
 import {pgArbitrageConfig} from "../../config/servicesConfig";
 import {query as checkQuery, body as checkBody, param as checkParam} from "express-validator/check";
 import * as moment from "moment";
 import * as jwt from "jsonwebtoken";
+import { Get, Post } from "../../core/controller/HandlerDecorators";
 
-
-export class AuthController extends Controller{
+@Controller('auth')
+export class AuthController{
 
     pgService: PgService;
 
     constructor(){ 
-        super();
         this.pgService = arbitrageService;        
     }
 
-    @Handler({
-        method: HttpMethod.POST,
+    @Post({
         route: '/login',
         validations: [
             checkBody(['username', 'password']).isLength({min: 1}),

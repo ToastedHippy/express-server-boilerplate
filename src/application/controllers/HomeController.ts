@@ -1,14 +1,15 @@
 import { RequestHandler, Request} from "express";
-import { Controller, Handler, HttpMethod} from "../../core/controller/Controller";
+import { Controller } from "../../core/controller/ControllerDecorator";
+import { Get } from "../../core/controller/HandlerDecorators";
 
-export class HomeController extends Controller{
-    constructor(){ super(); }
+@Controller('/')
+export class HomeController{
 
-    @Handler({
-        method: HttpMethod.GET,
+
+    @Get({
         route: '/'
     })
-    private greeting(req: Request){
+    private greeting(){
         return 'Hello dear friend!';
     }
 
