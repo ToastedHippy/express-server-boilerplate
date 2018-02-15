@@ -5,6 +5,7 @@ import {arbitrageService} from "../servises/ArbitrageService";
 import {pgArbitrageConfig} from "../../config/servicesConfig";
 import {query as checkQuery, body as checkBody, param as checkParam} from "express-validator/check";
 import * as moment from "moment";
+import * as jwt from "jsonwebtoken";
 
 
 export class AuthController extends Controller{
