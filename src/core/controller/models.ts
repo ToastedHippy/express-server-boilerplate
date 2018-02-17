@@ -1,4 +1,4 @@
-import {RequestHandler, Router} from "express";
+import {Handler, RequestHandler, Router} from "express";
 import {ValidationChain} from "express-validator/check"
 
 export interface IResponseData {
@@ -8,6 +8,7 @@ export interface IResponseData {
 
 export interface HandlerOptions {
     route: string;
+    guards?: Handler[];
     validations?: ValidationChain[]
 }
 

@@ -1,4 +1,5 @@
 import {Router} from "express";
+import { Strategy } from "passport-strategy";
 
 export interface IRouterConfig{
     path: string,
@@ -7,6 +8,7 @@ export interface IRouterConfig{
 
 export interface IServerConfig{
     port: number;
+    authStrategies?: Strategy[]
 }
 
 

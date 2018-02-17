@@ -5,6 +5,7 @@ import { IServerConfig } from "../config/models";
 import {IRouterConfig} from "../config/models";
 import {Controller} from "./controller/models";
 import * as morgan from "morgan";
+import * as passport from "passport";
 import { Router } from "express";
 
 
@@ -22,8 +23,16 @@ export class ExpressApplication {
     }
 
     private configure(config: IServerConfig){
+
+        if (config.authStrategies) {
+            for(let strategy of config.authStrategies) {
+                passport.use(strategy);
+            }
+        }
+
         this._instance.set('port', config.port);
-        this._instance.use(bodyParser.urlencoded({ extended: false }))
+        this._instance.use(passport.initialize());
+        this._instance.use(bodyParser.urlencoded({ extended: false }));
         this._instance.use(bodyParser.json());
         this._instance.use(cookieParser());
         this._instance.use(morgan('dev'));
