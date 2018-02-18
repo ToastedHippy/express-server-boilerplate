@@ -1,11 +1,11 @@
 import {Router, RequestHandler, Request, Response, NextFunction} from "express";
-import { HttpMethod, IResponseData, IController, IHandler } from "./models";
+import { HttpMethod, IResponseData, IHandler } from "../models/Handler.model";
 import { ValidationChain, validationResult } from "express-validator/check";
 
 
 export function Controller(path: string) {
     return function<T extends new(...args:any[])=>{}>(constructor:T):T {
-        return class extends constructor implements IController {
+        return class extends constructor {
             __path: string;
             __router: Router;
             __handlers: IHandler[]

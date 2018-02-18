@@ -10,7 +10,7 @@
             "request": "launch",
             "name": "Launch Program",
             "protocol": "inspector",
-            "program": "${workspaceRoot}/src/startup.ts",
+            "program": "${workspaceRoot}/src/start.ts",
             "sourceMaps": true,
             "outFiles": [
                 "${workspaceRoot}/bin/**/*.js"

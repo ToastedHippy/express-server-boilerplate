@@ -1,4 +1,4 @@
-import { HandlerOptions, HttpMethod } from "./models";
+import { HandlerOptions, HttpMethod } from "../models/Handler.model";
 
 function createHandler(method: HttpMethod, options: HandlerOptions) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {

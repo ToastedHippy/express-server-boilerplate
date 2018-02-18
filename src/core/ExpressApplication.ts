@@ -1,9 +1,8 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as cookieParser from "cookie-parser";
-import { IServerConfig } from "../config/models";
-import {IRouterConfig} from "../config/models";
-import {Controller} from "./controller/models";
+import { IExpressConfig } from "./models/Server.model";
+import {Controller} from "./models/Controller.model";
 import * as morgan from "morgan";
 import * as passport from "passport";
 import { Router } from "express";
@@ -12,7 +11,7 @@ import { Router } from "express";
 export class ExpressApplication {
     private _instance: express.Express;
 
-    constructor(config: IServerConfig, controllers?: Array<Controller>){
+    constructor(config: IExpressConfig, controllers?: Array<Controller>){
         this._instance = express();
         this.configure(config);
         if (controllers) this.registerControllers(controllers);
@@ -22,7 +21,7 @@ export class ExpressApplication {
         return this._instance;
     }
 
-    private configure(config: IServerConfig){
+    private configure(config: IExpressConfig){
 
         if (config.authStrategies) {
             for(let strategy of config.authStrategies) {
