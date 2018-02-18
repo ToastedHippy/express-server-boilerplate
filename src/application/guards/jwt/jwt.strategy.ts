@@ -11,7 +11,6 @@ let jwtOptions: passportJWT.StrategyOptions = {
 }
 
 export const jwtStrategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-  console.log('payload received', jwt_payload);
   // usually this would be a database call:
   next(null, {id: jwt_payload.userId});
 });
