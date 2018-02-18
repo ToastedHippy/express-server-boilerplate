@@ -9,7 +9,7 @@ export class HomeController{
 
     @Get({
         route: '/',
-        guards: jwtGuard
+        guard: jwtGuard
     })
     greeting(){
         return 'Hello dear friend!';

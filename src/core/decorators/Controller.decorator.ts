@@ -1,4 +1,4 @@
-import {Router, RequestHandler, Request, Response, NextFunction} from "express";
+import {Router, RequestHandler, Request, Response, NextFunction, Handler} from "express";
 import { HttpMethod, IResponseData, IHandler } from "../models/Handler.model";
 import { ValidationChain, validationResult } from "express-validator/check";
 
@@ -26,35 +26,37 @@ export function Controller(path: string) {
             registerHandler(handler: IHandler) {
                 const wrappedHandler = this.wrapHandler(handler.action),
                     validations = handler.validations || [],
-                    guards = handler.guards || [];
+                    guard = handler.guard;
+
+                let handlerMiddlewares: Handler[] = [guard, ...validations].filter(hm => !!hm);
         
                 switch (handler.method){
                     case HttpMethod.ALL:
-                        this.__router.all(handler.route, guards, validations, wrappedHandler);
+                        this.__router.all(handler.route, handlerMiddlewares, wrappedHandler);
                         break;
                     case HttpMethod.DELETE:
-                        this.__router.delete(handler.route, guards, validations, wrappedHandler);
+                        this.__router.delete(handler.route, handlerMiddlewares, wrappedHandler);
                         break;
                     case HttpMethod.GET:
-                        this.__router.get(handler.route, guards, validations, wrappedHandler);
+                        this.__router.get(handler.route, handlerMiddlewares, wrappedHandler);
                         break;
                     case HttpMethod.HEAD:
-                        this.__router.head(handler.route, guards, validations, wrappedHandler);
+                        this.__router.head(handler.route, handlerMiddlewares, wrappedHandler);
                         break;
                     case HttpMethod.OPTIONS:
-                        this.__router.options(handler.route, guards, validations, wrappedHandler);
+                        this.__router.options(handler.route, handlerMiddlewares, wrappedHandler);
                         break;
                     case HttpMethod.PATCH:
-                        this.__router.patch(handler.route, guards, validations, wrappedHandler);
+                        this.__router.patch(handler.route, handlerMiddlewares, wrappedHandler);
                         break;
                     case HttpMethod.POST:
-                        this.__router.post(handler.route, guards, validations, wrappedHandler);
+                        this.__router.post(handler.route, handlerMiddlewares, wrappedHandler);
                         break;
                     case HttpMethod.PUT:
-                        this.__router.put(handler.route, guards, validations, wrappedHandler);
+                        this.__router.put(handler.route, handlerMiddlewares, wrappedHandler);
                         break;
                     default:
-                        throw Error('incorrect http method')
+                        break;
                 }
             }
 

@@ -8,7 +8,7 @@ export interface IResponseData {
 
 export interface HandlerOptions {
     route: string;
-    guards?: Handler[];
+    guard?: Handler;
     validations?: ValidationChain[]
 }
 

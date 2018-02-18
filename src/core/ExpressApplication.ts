@@ -30,11 +30,12 @@ export class ExpressApplication {
         }
 
         this._instance.set('port', config.port);
+        this._instance.use(morgan('dev'));
         this._instance.use(passport.initialize());
         this._instance.use(bodyParser.urlencoded({ extended: false }));
         this._instance.use(bodyParser.json());
         this._instance.use(cookieParser());
-        this._instance.use(morgan('dev'));
+        
     }
 
     private registerControllers(Controllers: Array<Controller>) {

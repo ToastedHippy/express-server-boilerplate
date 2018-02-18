@@ -32,7 +32,7 @@ export class AuthController{
                 return {token};
                 
             } else {
-                throw('неверный пароль')
+                throw ('неверный пароль')
             }
         } else {
             throw('пользователя не существует')
